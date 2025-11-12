@@ -1,0 +1,22 @@
+{
+  "name": "bd-sourcing-scripts",
+  "version": "1.0.0",
+  "description": "Seed scripts for BD-Sourcing",
+  "main": "dist/seed.js",
+  "scripts": {
+    "start": "ts-node seed.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
+    "mongoose": "^8.0.1",
+    "@faker-js/faker": "^8.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2"
+  }
+}

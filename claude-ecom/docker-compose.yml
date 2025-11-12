@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: bd-sourcing-mongo
+    restart: unless-stopped
+    ports:
+      - '10000:27017'
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: bd-sourcing
+    networks:
+      - bd-sourcing-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bd-sourcing-backend
+    restart: unless-stopped
+    ports:
+      - '10001:10001'
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: development
+      PORT: 10001
+      MONGODB_URI: mongodb://mongo:27017/bd-sourcing
+      JWT_SECRET: ${JWT_SECRET}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    volumes:
+      - ./backend/src:/app/src
+      - /app/node_modules
+    networks:
+      - bd-sourcing-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bd-sourcing-frontend
+    restart: unless-stopped
+    ports:
+      - '10002:10002'
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:10001/api
+      NEXTAUTH_URL: http://localhost:10002
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - bd-sourcing-network
+
+volumes:
+  mongo-data:
+
+networks:
+  bd-sourcing-network:
+    driver: bridge
